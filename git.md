@@ -227,6 +227,13 @@ $ git checkout -b branch-name origin/branch-name
 ```
 本地和远程分支的名称最好一致
 
+#### 修改远程分支名称
+```bash
+$ git branch -m branch_old branch_new 
+$ git push origin :branch_old
+$ git push --set-upstream origin branch_new
+```
+
 #### 删除远程分支
 ```bash
 $ git push origin --delete branch-name
