@@ -73,8 +73,6 @@ commit_id是版本号，是一个用SHA1计算出的序列
 版本库：在工作区有一个隐藏目录`.git`，是Git的版本库。
 Git的版本库中存了很多东西，其中最重要的就是称为stage（或者称为index）的暂存区，还有Git自动创建的`master`，以及指向`master`的指针`HEAD`。
 
-![理解](https://cdn.liaoxuefeng.com/cdn/files/attachments/001384907720458e56751df1c474485b697575073c40ae9000/0)
-
 进一步解释一些命令：
 - `git add file`(添加单个文件)`git add .`（添加所有文件）实际上是把文件添加到暂存区
 - `git commit`实际上是把暂存区的所有内容提交到当前分支
