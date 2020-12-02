@@ -104,6 +104,12 @@ $ git checkout -- <file>
 
 3. 已经提交了不合适的修改到版本库时，想要撤销本次提交，进行版本回退，前提是没有推送到远程库。
 
+### 撤销commit
+```bash
+$ git reset --soft HEAD~1(撤销1次commit)
+$ git reset --soft HEAD~2(撤销2次commit)
+```
+
 ### 删除文件
 ```bash
 $ git rm --cached -f <file>
