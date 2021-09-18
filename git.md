@@ -233,9 +233,10 @@ $ git checkout -b branch-name origin/branch-name
 
 #### 修改远程分支名称
 ```bash
-$ git branch -m branch_old branch_new 
-$ git push origin :branch_old
-$ git push --set-upstream origin branch_new
+$ git branch -m branch_old branch_new
+$ git push --delete origin branch_old
+$ git push origin branch_new
+$ git branch --set-upstream-to origin/branch_new
 ```
 
 #### 删除远程分支
