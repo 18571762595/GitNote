@@ -142,6 +142,11 @@ A：执行`git commit -m "delete text.txt"`，提交后最新的版本库将不�
 ```bash
 $ ssh-keygen -t rsa -C "youremail@example.com" -b 4096
 ```
+#### 屏蔽主机密码验证
+```bash
+在.ssh目录下新建config文件后输入以下命令
+$ StrictHostKeyChecking=no
+```
 #### 关联远程仓库
 ```bash
 $ git remote add origin https://github.com/username/repositoryname.git
