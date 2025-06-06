@@ -12,7 +12,7 @@
 ```bash
 $ git config --global user.name "Your Name"
 $ git config --global user.email "email@example.com"
-% git config --global core.ignorecase false【忽略大小写，true表示忽略，false表示不忽略】
+$ git config --global core.ignorecase false【忽略大小写，true表示忽略，false表示不忽略】
 ```
 `git config`命令的`--global`参数，表明这台机器上的所有Git仓库都会使用这个配置，也可以对某个仓库指定不同的用户名和邮箱地址。
 
