@@ -1,4 +1,3 @@
-# <p align = "center"> Git笔记 </p>
 ## Git介绍
 - Git是分布式版本控制系统
 - 集中式VS分布式，SVN VS Git
