@@ -1,331 +1,512 @@
-## Git介绍
-- Git是分布式版本控制系统
-- 集中式VS分布式，SVN VS Git
-  1. SVN和Git主要的区别在于历史版本维护的位置
-  2. Git本地仓库包含代码库还有历史库，在本地的环境开发就可以记录历史而SVN的历史库存在于中央仓库，每次对比与提交代码都必须连接到中央仓库才能进行。
-  3. 这样的好处在于：
-     - 自己可以在脱机环境查看开发的版本历史。
-     - 多人开发时如果充当中央仓库的Git仓库挂了，可以随时创建一个新的中央仓库然后同步就立刻恢复了中央库。
-## Git命令
-### Git配置
-```bash
-$ git config --global user.name "Your Name"
-$ git config --global user.email "email@example.com"
-$ git config --global core.ignorecase false【忽略大小写，true表示忽略，false表示不忽略】
-```
-`git config`命令的`--global`参数，表明这台机器上的所有Git仓库都会使用这个配置，也可以对某个仓库指定不同的用户名和邮箱地址。
+# Git 使用笔记
 
-### 创建版本库
-#### 初始化一个Git仓库
-```bash
-$ git init
-```
-#### 添加文件到Git仓库
-包括两步：
-```bash
-$ git add <file>
-$ git commit -m "description"
-```
-`git add`可以反复多次使用，添加多个文件，`git commit`可以一次提交很多文件，`-m`后面输入的是本次提交的说明，可以输入任意内容。
+## 1. Git 简介
 
-### 查看工作区状态
-```bash
-$ git status
-```
-### 查看修改内容
-```bash
-$ git diff
-```
-```bash
-$ git diff --cached
-```
-```bash
-$ git diff HEAD -- <file>
-```
-- `git diff` 可以查看工作区(work dict)和暂存区(stage)的区别
-- `git diff --cached` 可以查看暂存区(stage)和分支(master)的区别
-- `git diff HEAD -- <file>` 可以查看工作区和版本库里面最新版本的区别
-### 查看提交日志
-```bash
-$ git log
-```
-简化日志输出信息
-```bash
-$ git log --pretty=oneline
-```
-### 查看命令历史
-```bash
-$ git reflog
-```
-### 版本回退
-```bash
-$ git reset --hard HEAD^
-```
-以上命令是返回上一个版本，在Git中，用`HEAD`表示当前版本，上一个版本就是`HEAD^`，上上一个版本是`HEAD^^`，往上100个版本写成`HEAD~100`。
-### 回退指定版本号
-```bash
-$ git reset --hard commit_id
-```
-commit_id是版本号，是一个用SHA1计算出的序列
+### 1.1 什么是 Git
 
-### 工作区、暂存区和版本库
-工作区：在电脑里能看到的目录；
-版本库：在工作区有一个隐藏目录`.git`，是Git的版本库。
-Git的版本库中存了很多东西，其中最重要的就是称为stage（或者称为index）的暂存区，还有Git自动创建的`master`，以及指向`master`的指针`HEAD`。
+Git 是分布式版本控制系统。
 
-进一步解释一些命令：
-- `git add file`(添加单个文件)`git add .`（添加所有文件）实际上是把文件添加到暂存区
-- `git commit`实际上是把暂存区的所有内容提交到当前分支
-- `git commit -am`或者`git commit -a -m`相当于运行`git add .`把所有当前目录下的文件加入暂存区域再运行`git commit -m`
-### 撤销修改
-#### 丢弃工作区的修改
+### 1.2 集中式 vs 分布式（SVN vs Git）
+
+SVN 和 Git 主要的区别在于历史版本维护的位置：
+
+| 特性 | SVN | Git |
+|------|-----|-----|
+| 历史库位置 | 中央仓库 | 本地仓库 |
+| 离线操作 | 需连接中央仓库 | 支持离线查看历史 |
+| 中央仓库故障 | 无法恢复 | 可快速重建中央库 |
+
+**分布式优势**：
+- 可以在脱机环境查看开发的版本历史
+- 多人开发时如果中央仓库挂了，可以随时创建新的中央仓库并同步恢复
+
+---
+
+## 2. Git 配置
+
+### 2.1 基本配置
+
 ```bash
-$ git checkout -- <file>
-```
-该命令是指将文件在工作区的修改全部撤销，这里有两种情况：
-1. 一种是file自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
-2. 一种是file已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+# 设置用户名
+git config --global user.name "Your Name"
 
-总之，就是让这个文件回到最近一次git commit或git add时的状态。
+# 设置邮箱
+git config --global user.email "email@example.com"
 
-#### 丢弃暂存区的修改
-分两步：
-第一步，把暂存区的修改撤销掉(unstage)，重新放回工作区：
-```bash
-$ git reset HEAD <file>
-```
-第二步，撤销工作区的修改
-```bash
-$ git checkout -- <file>
-```
-小结：
-1. 当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令`git checkout -- <file>`。
-2. 当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令`git reset HEAD <file>`，就回到了第一步，第二步按第一步操作。
-
-3. 已经提交了不合适的修改到版本库时，想要撤销本次提交，进行版本回退，前提是没有推送到远程库。
-
-### 撤销commit
-```bash
-$ git reset --soft HEAD~1(撤销1次commit)
-$ git reset --soft HEAD~2(撤销2次commit)
+# 设置大小写敏感（false 表示不忽略大小写）
+git config --global core.ignorecase false
 ```
 
-### 删除文件
+> `--global` 参数表示这台机器上所有 Git 仓库都会使用这个配置。也可以对某个仓库单独指定不同的用户名和邮箱。
+
+### 2.2 SSH 配置
+
 ```bash
-$ git rm --cached -f <file>
-$ git rm <file>
-```
-`git rm <file>`相当于执行
-```bash
-$ rm <file>
-$ git add <file>
-```
-### 删除文件夹
-```bash
-$ git rm -rf <dir name>
+# 创建 SSH Key
+ssh-keygen -t rsa -C "youremail@example.com" -b 4096
 ```
 
-#### 进一步的解释
-Q：比如执行了`rm text.txt` 误删了怎么恢复？
-A：执行`git checkout -- text.txt` 把版本库的东西重新写回工作区就行了
-Q：如果执行了`git rm text.txt`我们会发现工作区的text.txt也删除了，怎么恢复？
-A：先撤销暂存区修改，重新放回工作区，然后再从版本库写回到工作区
-```bash
-$ git reset head text.txt
-$ git checkout -- text.txt
-```
-Q：如果真的想从版本库里面删除文件怎么做？
-A：执行`git commit -m "delete text.txt"`，提交后最新的版本库将不包含这个文件
+### 2.3 屏蔽主机密码验证
 
-### 远程仓库
-#### 创建SSH Key
-```bash
-$ ssh-keygen -t rsa -C "youremail@example.com" -b 4096
-```
-#### 屏蔽主机密码验证
-```bash
-在.ssh目录下新建config文件后输入以下命令
-$ StrictHostKeyChecking=no
-```
-#### 关联远程仓库
-```bash
-$ git remote add origin https://github.com/username/repositoryname.git
-```
-#### 重设远程仓库
-```bash
-$ git remote set-url origin https://github.com/username/repositoryname.git
-```
-#### 推送到远程仓库
-```bash
-$ git push -u origin master(git push --set-upstream origin master)
-```
-`-u` 表示第一次推送master分支的所有内容，此后，每次本地提交后，只要有必要，就可以使用命令`git push origin master`推送最新修改。
+在 `.ssh` 目录下新建 `config` 文件，添加：
 
-#### 从远程克隆
-```bash
-$ git clone https://github.com/usern/repositoryname.git
+```
+StrictHostKeyChecking=no
 ```
 
-### 分支
-#### 创建分支
-```bash
-$ git branch <branchname>
-```
-#### 查看分支
-```bash
-$ git branch
-```
-`git branch`命令会列出所有分支，当前分支前面会标一个*号。
+---
 
-#### 切换分支
+## 3. 创建版本库
+
+### 3.1 初始化仓库
+
 ```bash
-$ git checkout <branchname>
+git init
 ```
 
-#### 创建+切换分支
+### 3.2 添加文件到仓库
+
 ```bash
-$ git checkout -b <branchname>
+# 添加单个文件
+git add <file>
+
+# 添加所有文件
+git add .
+
+# 提交到版本库
+git commit -m "description"
 ```
 
-#### 合并某分支到当前分支
+> `git add` 可以反复多次使用，添加多个文件。`git commit` 一次提交暂存区的所有文件。
+
+### 3.3 快捷提交
+
 ```bash
-$ git merge <branchname>
+# 相当于 git add . + git commit -m
+git commit -am "description"
+# 或
+git commit -a -m "description"
 ```
 
-#### 删除分支
+---
+
+## 4. 查看状态与修改
+
+### 4.1 查看工作区状态
+
 ```bash
-$ git branch -d <branchname>
+git status
 ```
 
-#### 清除已删除的远程分支的引用
+### 4.2 查看修改内容
+
 ```bash
-$ git fetch --prune
+# 查看工作区和暂存区的区别
+git diff
+
+# 查看暂存区和分支的区别
+git diff --cached
+
+# 查看工作区和版本库最新版本的区别
+git diff HEAD -- <file>
 ```
 
-#### 查看分支合并图
-```bash
-$ git log --graph
-```
-当Git无法自动合并分支时，就必须首先解决冲突。解决冲突后，再提交，合并完成。用`git log --graph`命令可以看到分支合并图。
+### 4.3 查看提交日志
 
-#### 普通模式合并分支
 ```bash
-$ git merge --no-ff -m "description" <branchname>
-```
-因为本次合并要创建一个新的commit，所以加上`-m`参数，把commit描述写进去。合并分支时，加上`--no-ff`参数就可以用普通模式合并，能看出来曾经做过合并，包含作者和时间戳等信息，而fast forward合并就看不出来曾经做过合并。
+# 查看完整日志
+git log
 
-#### 保存工作现场
-```bash
-$ git stash
-```
-#### 查看工作现场
-```bash
-$ git stash list
-```
-#### 恢复工作现场
-```bash
-$ git stash pop
-```
-#### 丢弃一个没有合并过的分支
-```bash
-$ git branch -D <branchname>
+# 简化日志输出
+git log --pretty=oneline
+
+# 查看分支合并图
+git log --graph
 ```
 
-#### 查看远程库信息
+### 4.4 查看命令历史
+
 ```bash
-$ git remote -v
+git reflog
 ```
 
-#### 在本地创建和远程分支对应的分支
-```bash
-$ git checkout -b branch-name origin/branch-name
-```
-本地和远程分支的名称最好一致
+---
 
-#### 修改远程分支名称
+## 5. 版本回退
+
+### 5.1 回退到上一版本
+
 ```bash
-$ git branch -m branch_old branch_new
-$ git push --delete origin branch_old
-$ git push --set-upstream origin branch_new
+git reset --hard HEAD^
 ```
 
-#### 删除远程分支
-```bash
-$ git push origin --delete branch-name
-```
-本地和远程分支的名称最好一致
+| 符号 | 含义 |
+|------|------|
+| `HEAD` | 当前版本 |
+| `HEAD^` | 上一个版本 |
+| `HEAD^^` | 上上一个版本 |
+| `HEAD~100` | 往上 100 个版本 |
 
-#### 建立本地分支和远程分支的关联
-```bash
-$ git branch --set-upstream branch-name origin/branch-name
-```
-#### 从本地推送分支
-```bash
-$ git push origin branch-name
-```
-如果推送失败,先用git pull抓取远程的新提交
-#### 从远程抓取分支
-```bash
-$ git pull
-```
-如果有冲突,要先处理冲突。
+### 5.2 回退到指定版本
 
-#### 将远程A的master分支内容同步到B的dev分支上
-假如此时在git@github.com:18571762595/LocalMusic.git的master分支上,如果想同步git@github.com:15927437594/LocalMusic.git的master分支内容到当前git仓库的dev分支上,则命令如下(注意当前git仓库应该在master分支上)
 ```bash
-$ git fetch git@github.com:15927437594/LocalMusic.git master:dev
+git reset --hard <commit_id>
 ```
 
-### 标签
-tag就是一个让人容易记住的有意义的名字,它跟某个commit绑在一起。
-#### 新建一个标签
-```bash
-$ git tag <tagname>
-```
-命令`git tag <tagname>`用于新建一个标签，默认为HEAD，也可以指定一个commit id。
-#### 指定标签信息
-```bash
-$ git tag -a <tagname> -m <description> <branchname> or commit_id
-```
-`git tag -a <tagname> -m "blablabla..."`可以指定标签信息。
-#### PGP签名标签
-```bash
-$ git tag -s <tagname> -m <description> <branchname> or commit_id
-```
-`git tag -s <tagname> -m "blablabla..."`可以用PGP签名标签。
-#### 查看所有标签
-```bash
-$ git tag
-```
-#### 推送一个本地标签
-```bash
-$ git push origin <tagname>
-```
-#### 推送全部未推送过的本地标签
-```bash
-$ git push origin --tags
-```
-#### 删除一个本地标签
-```bash
-$ git tag -d <tagname>
-```
-#### 删除一个远程标签
-```bash
-$ git push origin :refs/tags/<tagname>
-```
-#### 升级git版本命令
-```bash
-$ git update-git-for-windows
-```
-#### 优化.git文件夹大小
+> `commit_id` 是版本号，由 SHA1 计算得出。
 
-https://www.cnblogs.com/lout/p/6111739.html
+### 5.3 撤销 commit
 
-#### AndroidStudio中的terminal终端中输入git log显示乱码
-原因:AndroidStudio中是en_UTF8编码,而在Windows中是C_UTF8的编码格式,这样值需要改变全局编码格式为C_UTF8
 ```bash
-新建系统环境变量 key="LC_ALL" value="C.UTF-8"
+# 撤销 1 次 commit
+git reset --soft HEAD~1
+
+# 撤销 2 次 commit
+git reset --soft HEAD~2
 ```
 
-Git操作的过程中突然显示Another git process seems to be running in this repository, e.g.an editor opened by 'git commit'. Please make sure all processesare terminated then try again. If it still fails, a git process may have crashed in this repository earlier:remove the file manually to continue. 翻译过来就是git被另外一个程序占用,重启机器也不能够解决。 原因在于Git在使用过程中遭遇了奔溃,部分被上锁资源没有被释放导致的。 解决方案:进入项目文件夹下的.git文件中（显示隐藏文件夹或rm .git/index.lock）删除index.lock文件即可。
+---
 
+## 6. 工作区、暂存区和版本库
+
+### 6.1 概念说明
+
+| 区域 | 说明 |
+|------|------|
+| 工作区 | 电脑里能看到的目录 |
+| 版本库 | 工作区隐藏目录 `.git` |
+| 暂存区 | stage/index，版本库中的重要区域 |
+
+Git 版本库存放了：
+- 暂存区（stage/index）
+- 自动创建的 `master` 分支
+- 指向 `master` 的指针 `HEAD`
+
+### 6.2 命令解释
+
+```bash
+# 把文件添加到暂存区
+git add <file>
+
+# 把暂存区内容提交到当前分支
+git commit -m "description"
+```
+
+---
+
+## 7. 撤销修改
+
+### 7.1 丢弃工作区修改
+
+```bash
+git checkout -- <file>
+```
+
+**两种情况**：
+1. 文件修改后未添加到暂存区 → 回到版本库状态
+2. 文件已添加到暂存区后又修改 → 回到暂存区状态
+
+### 7.2 丢弃暂存区修改
+
+```bash
+# 第一步：把暂存区修改撤销，重新放回工作区
+git reset HEAD <file>
+
+# 第二步：撤销工作区修改
+git checkout -- <file>
+```
+
+### 7.3 小结
+
+| 场景 | 命令 |
+|------|------|
+| 改乱工作区，想丢弃 | `git checkout -- <file>` |
+| 已添加到暂存区，想丢弃 | `git reset HEAD <file>` → `git checkout -- <file>` |
+| 已提交到版本库，想撤销 | 版本回退（未推送远程库时） |
+
+---
+
+## 8. 删除文件
+
+### 8.1 删除文件
+
+```bash
+# 从暂存区删除，保留工作区文件
+git rm --cached -f <file>
+
+# 从暂存区和工作区都删除
+git rm <file>
+
+# 删除文件夹
+git rm -rf <dir_name>
+```
+
+> `git rm <file>` 相当于执行 `rm <file>` + `git add <file>`
+
+### 8.2 恢复误删文件
+
+**场景一**：执行了 `rm text.txt` 误删
+
+```bash
+git checkout -- text.txt
+```
+
+**场景二**：执行了 `git rm text.txt`
+
+```bash
+git reset HEAD text.txt
+git checkout -- text.txt
+```
+
+**场景三**：真的想从版本库删除
+
+```bash
+git commit -m "delete text.txt"
+```
+
+---
+
+## 9. 远程仓库
+
+### 9.1 关联远程仓库
+
+```bash
+# 添加远程仓库
+git remote add origin https://github.com/username/repositoryname.git
+
+# 重设远程仓库地址
+git remote set-url origin https://github.com/username/repositoryname.git
+
+# 查看远程库信息
+git remote -v
+```
+
+### 9.2 推送到远程仓库
+
+```bash
+# 第一次推送（关联分支）
+git push -u origin master
+# 或
+git push --set-upstream origin master
+
+# 后续推送
+git push origin master
+```
+
+### 9.3 从远程克隆
+
+```bash
+git clone https://github.com/username/repositoryname.git
+```
+
+### 9.4 从远程抓取
+
+```bash
+# 抓取远程更新
+git pull
+
+# 如果推送失败，先抓取远程新提交
+git pull
+```
+
+### 9.5 同步其他远程仓库
+
+将远程 A 的 master 分支同步到本地 dev 分支：
+
+```bash
+git fetch git@github.com:username/repo.git master:dev
+```
+
+---
+
+## 10. 分支管理
+
+### 10.1 创建与查看分支
+
+```bash
+# 创建分支
+git branch <branchname>
+
+# 查看分支
+git branch
+
+# 创建并切换分支
+git checkout -b <branchname>
+
+# 切换分支
+git checkout <branchname>
+```
+
+### 10.2 合并分支
+
+```bash
+# 合并某分支到当前分支
+git merge <branchname>
+
+# 普通模式合并（保留合并记录）
+git merge --no-ff -m "description" <branchname>
+```
+
+### 10.3 删除分支
+
+```bash
+# 删除已合并的分支
+git branch -d <branchname>
+
+# 强制删除未合并的分支
+git branch -D <branchname>
+
+# 删除远程分支
+git push origin --delete <branch-name>
+
+# 清除已删除的远程分支引用
+git fetch --prune
+```
+
+### 10.4 修改远程分支名称
+
+```bash
+git branch -m <branch_old> <branch_new>
+git push --delete origin <branch_old>
+git push --set-upstream origin <branch_new>
+```
+
+### 10.5 本地与远程分支关联
+
+```bash
+# 创建本地分支并与远程分支对应
+git checkout -b <branch-name> origin/<branch-name>
+
+# 建立本地分支和远程分支的关联
+git branch --set-upstream <branch-name> origin/<branch-name>
+```
+
+### 10.6 推送分支
+
+```bash
+# 从本地推送分支
+git push origin <branch-name>
+```
+
+---
+
+## 11. Stash（保存工作现场）
+
+```bash
+# 保存工作现场
+git stash
+
+# 查看工作现场
+git stash list
+
+# 恢复工作现场
+git stash pop
+```
+
+---
+
+## 12. 标签管理
+
+### 12.1 创建标签
+
+```bash
+# 新建标签（默认为 HEAD）
+git tag <tagname>
+
+# 指定 commit id 创建标签
+git tag <tagname> <commit_id>
+
+# 指定标签信息
+git tag -a <tagname> -m "description" <branchname>
+
+# PGP 签名标签
+git tag -s <tagname> -m "description" <branchname>
+```
+
+### 12.2 查看标签
+
+```bash
+# 查看所有标签
+git tag
+```
+
+### 12.3 推送标签
+
+```bash
+# 推送单个标签
+git push origin <tagname>
+
+# 推送全部未推送过的标签
+git push origin --tags
+```
+
+### 12.4 删除标签
+
+```bash
+# 删除本地标签
+git tag -d <tagname>
+
+# 删除远程标签
+git push origin :refs/tags/<tagname>
+```
+
+---
+
+## 13. 常见问题
+
+### 13.1 升级 Git 版本
+
+```bash
+git update-git-for-windows
+```
+
+### 13.2 Android Studio 终端 git log 乱码
+
+**原因**：Android Studio 使用 `en_UTF8` 编码，Windows 使用 `C_UTF8` 编码
+
+**解决方案**：新建系统环境变量
+
+| Key | Value |
+|-----|-------|
+| `LC_ALL` | `C.UTF-8` |
+
+### 13.3 Git 进程锁定问题
+
+**错误信息**：
+```
+Another git process seems to be running in this repository...
+```
+
+**原因**：Git 操作时崩溃，部分被上锁资源未释放
+
+**解决方案**：
+1. 进入项目文件夹下的 `.git` 目录
+2. 删除 `index.lock` 文件
+
+```bash
+rm .git/index.lock
+```
+
+### 13.4 优化 .git 文件夹大小
+
+参考文档：https://www.cnblogs.com/lout/p/6111739.html
+
+---
+
+## 14. 命令速查表
+
+| 功能 | 命令 |
+|------|------|
+| 初始化仓库 | `git init` |
+| 克隆仓库 | `git clone <url>` |
+| 添加文件 | `git add <file>` |
+| 提交 | `git commit -m "msg"` |
+| 查看状态 | `git status` |
+| 查看日志 | `git log` |
+| 版本回退 | `git reset --hard HEAD^` |
+| 创建分支 | `git branch <name>` |
+| 切换分支 | `git checkout <name>` |
+| 合并分支 | `git merge <name>` |
+| 删除分支 | `git branch -d <name>` |
+| 推送远程 | `git push origin <branch>` |
+| 拉取远程 | `git pull` |
